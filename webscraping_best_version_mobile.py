@@ -208,6 +208,10 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
             analysed_url = f"https://app.wip29.com/ticketing/dashboard?mode=session&start={today}&end={today}"
             first_date = today.strftime("%d-%m-%Y")
 
+            llista_peticions.append(today, analysed_url)
+
+            option = 1
+
         
 
     def descarregar_setmana(peticio):
@@ -267,7 +271,7 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
                 print(f"Any: {data_inici.year} / Mes: {data_inici.month:02d} / Dia: {data_inici.day:02d}")
                 print(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
 
-                if string_elapsed_time == "Avui":
+                if option == 1:
                     st.text(f"Any: {today.year} / Mes: {today.month:02d} / Dia: {today.day:02d}")
                     st.text(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
                     st.divider()
@@ -278,8 +282,13 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
 
                 break
 
+    # If the loop finished and we never found the show, tell the user!
+    if not dates_grafic:
+        st.warning(f"No s'han trobat dades de recaptació per a '{string_show_name}' en el període seleccionat.")
+        return None
 
-    if string_elapsed_time == "Mesos" or string_elapsed_time == "Setmanes":
+
+    if option == 1:
         # Make the figure slightly larger so the labels fit nicely
         fig = Figure(figsize=(10, 6)) 
         ax = fig.add_subplot(111)
