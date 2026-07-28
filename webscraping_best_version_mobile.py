@@ -269,6 +269,12 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
                 print(f"Any: {data_inici.year} / Mes: {data_inici.month:02d} / Dia: {data_inici.day:02d}")
                 print(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
 
+                if option == 1:
+                    st.write(f"Any: {today.year} / Mes: {today.month:02d} / Dia: {today.day:02d}")
+                    st.write(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
+                    st.divider()
+
+
                 dates_grafic.append(data_inici)
                 recaptacions_grafic.append(recaptacio)
 
@@ -317,10 +323,9 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
 
         # Hand the figure back to the main app instead of drawing it here
         return fig
-    elif option == 1:
-        st.write(f"Any: {today.year} / Mes: {today.month:02d} / Dia: {today.day:02d}")
-        st.write(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
-
+    
+    else:
+        return None
     
 
 
