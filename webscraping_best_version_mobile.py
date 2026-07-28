@@ -288,7 +288,7 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
         return None
 
 
-    if option == 1:
+    if option == 0:
         # Make the figure slightly larger so the labels fit nicely
         fig = Figure(figsize=(10, 6)) 
         ax = fig.add_subplot(111)
