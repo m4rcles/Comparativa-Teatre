@@ -2,3 +2,7 @@ streamlit
 requests
 beautifulsoup4
 matplotlib
+
+
+json
+mplcursors
