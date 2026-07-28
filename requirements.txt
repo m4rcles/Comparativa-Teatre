@@ -5,5 +5,3 @@ matplotlib
 
 
 json
-mplcursors
-tkinter
