@@ -1,9 +1,7 @@
 import requests, json
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import tkinter as tk
 import streamlit as st
-from tkinter import messagebox, ttk
 from datetime import datetime, date, timedelta
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
