@@ -184,6 +184,8 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
             new_start_of_week = new_start_of_week + timedelta(days=7)
             new_end_of_week = new_end_of_week + timedelta(days=7)
 
+            option = 0
+
         elif string_elapsed_time == "Mesos":
             analysed_url = f"https://app.wip29.com/ticketing/dashboard?mode=session&start={start_of_month.year}-{start_of_month.month:02d}-{start_of_month.day:02d}&end={end_of_month.year}-{end_of_month.month:02d}-{end_of_month.day:02d}"
 
@@ -199,10 +201,14 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
             data_salt = start_of_month + timedelta(days = 31)
             end_of_month = data_salt.replace(day = 1) - timedelta(days = 1)
 
+            option = 0
+
         elif string_elapsed_time == "Avui":
-            today_past = today.replace(year = espectacle_any)
-            analysed_url = f"https://app.wip29.com/ticketing/dashboard?mode=session&start={today_past}&end={today_past}"
-            first_date = today_past.strftime("%d-%m-%Y")
+            #today_past = today.replace(year = espectacle_any)
+            analysed_url = f"https://app.wip29.com/ticketing/dashboard?mode=session&start={today}&end={today}"
+            first_date = today.strftime("%d-%m-%Y")
+
+            option = 1
 
         
 
@@ -269,48 +275,51 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
                 break
 
 
+    if option == 0:
+        # Make the figure slightly larger so the labels fit nicely
+        fig = Figure(figsize=(10, 6)) 
+        ax = fig.add_subplot(111)
 
-    # Make the figure slightly larger so the labels fit nicely
-    fig = Figure(figsize=(10, 6)) 
-    ax = fig.add_subplot(111)
+        barres = ax.bar(dates_grafic, recaptacions_grafic, color='skyblue')
 
-    barres = ax.bar(dates_grafic, recaptacions_grafic, color='skyblue')
+        ax.set_title(f"Gràfic recaptació {string_show_name} des de {first_date}")
+        ax.set_xlabel("Dates")
+        ax.set_ylabel("Recaptació (€)")
 
-    ax.set_title(f"Gràfic recaptació {string_show_name} des de {first_date}")
-    ax.set_xlabel("Dates")
-    ax.set_ylabel("Recaptació (€)")
+        # Make the Y-axis slightly taller than the highest bar so text doesn't get cut off
+        if recaptacions_grafic:
+            ax.set_ylim(bottom=0, top=max(recaptacions_grafic) * 1.15) 
 
-    # Make the Y-axis slightly taller than the highest bar so text doesn't get cut off
-    if recaptacions_grafic:
-        ax.set_ylim(bottom=0, top=max(recaptacions_grafic) * 1.15) 
-
-    # --- NEW: Write the values on top of each bar ---
-    for barra in barres:
-        alçada = barra.get_height()
-        
-        if alçada > 0: # Only write the text if the bar actually has a value
-            # Format the number to Catalan/European standard
-            text_america = f"{alçada:,.2f}"
-            text_catala = text_america.replace(',', 'X').replace('.', ',').replace('X', '.')
-
-            int_text_america = f"{alçada:,.0f}"
-            int_text_catala = int_text_america.replace(',', '.')
+        # --- NEW: Write the values on top of each bar ---
+        for barra in barres:
+            alçada = barra.get_height()
             
-            # Place the text
-            ax.text(
-                barra.get_x() + barra.get_width() / 2, # X coordinate: Center of the bar
-                alçada,                                # Y coordinate: Top of the bar
-                f"{int_text_catala}€",                     # The text to display
-                ha='center',                           # Align center horizontally
-                va='bottom',                           # Align just above the bar
-                fontsize=9,                            # Make text slightly smaller
-                rotation=45                            # Rotate it so nearby bars don't overlap
-            )
+            if alçada > 0: # Only write the text if the bar actually has a value
+                # Format the number to Catalan/European standard
+                text_america = f"{alçada:,.2f}"
+                text_catala = text_america.replace(',', 'X').replace('.', ',').replace('X', '.')
 
-    fig.autofmt_xdate(rotation=45, ha='right')
+                int_text_america = f"{alçada:,.0f}"
+                int_text_catala = int_text_america.replace(',', '.')
+                
+                # Place the text
+                ax.text(
+                    barra.get_x() + barra.get_width() / 2, # X coordinate: Center of the bar
+                    alçada,                                # Y coordinate: Top of the bar
+                    f"{int_text_catala}€",                     # The text to display
+                    ha='center',                           # Align center horizontally
+                    va='bottom',                           # Align just above the bar
+                    fontsize=9,                            # Make text slightly smaller
+                    rotation=45                            # Rotate it so nearby bars don't overlap
+                )
 
-    # Hand the figure back to the main app instead of drawing it here
-    return fig
+        fig.autofmt_xdate(rotation=45, ha='right')
+
+        # Hand the figure back to the main app instead of drawing it here
+        return fig
+    elif option == 1:
+        st.write(f"Any: {data_inici.year} / Mes: {data_inici.month:02d} / Dia: {data_inici.day:02d}")
+        st.write(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
 
     
 
