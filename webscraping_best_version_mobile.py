@@ -1,5 +1,4 @@
 import requests, json
-import matplotlib.dates as mdates
 import tkinter as tk
 import streamlit as st
 from tkinter import messagebox, ttk
