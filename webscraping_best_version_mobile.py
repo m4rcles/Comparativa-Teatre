@@ -279,7 +279,7 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
                 break
 
 
-    if option == 0:
+    if string_elapsed_time == "Mesos" or string_elapsed_time == "Setmanes":
         # Make the figure slightly larger so the labels fit nicely
         fig = Figure(figsize=(10, 6)) 
         ax = fig.add_subplot(111)
