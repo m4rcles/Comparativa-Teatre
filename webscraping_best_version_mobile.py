@@ -5,7 +5,6 @@ import streamlit as st
 from datetime import datetime, date, timedelta
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
 # Create a global session, but save it in Streamlit's memory so it doesn't get erased!
