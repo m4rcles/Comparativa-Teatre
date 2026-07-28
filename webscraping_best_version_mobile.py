@@ -208,8 +208,6 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
             analysed_url = f"https://app.wip29.com/ticketing/dashboard?mode=session&start={today}&end={today}"
             first_date = today.strftime("%d-%m-%Y")
 
-            option = 1
-
         
 
     def descarregar_setmana(peticio):
@@ -269,9 +267,9 @@ def executar_script(string_show_name, string_year, string_elapsed_time):
                 print(f"Any: {data_inici.year} / Mes: {data_inici.month:02d} / Dia: {data_inici.day:02d}")
                 print(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
 
-                if option == 1:
-                    st.write(f"Any: {today.year} / Mes: {today.month:02d} / Dia: {today.day:02d}")
-                    st.write(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
+                if string_elapsed_time == "Avui":
+                    st.text(f"Any: {today.year} / Mes: {today.month:02d} / Dia: {today.day:02d}")
+                    st.text(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | Total: {total_formatejat}€")
                     st.divider()
 
 
