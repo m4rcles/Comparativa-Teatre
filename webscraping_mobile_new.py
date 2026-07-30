@@ -561,11 +561,12 @@ else:
 
 
     with col2:
-        graph_espectadors = st.checkbox("Espectadors")
+        graph_espectadors_pagament = st.checkbox("Espectadors de pagament")
+        graph_espectadors_convidats = st.checkbox("Espectadors amb invitació")
 
 
     with col3:
-        graph_comissions = st.checkbox("Comissiosn")
+        graph_comissions = st.checkbox("Comissions")
 
 
     
@@ -581,7 +582,7 @@ else:
 
         with st.spinner(f"S'està executant l'script per a: **{entrada_espectacle}** (Anys: {text_anys}, Període: {elapsed_time})..."):
             # 1. Run the script and catch the returned graph
-            nous_graphs = executar_script(entrada_espectacle, elapsed_time, graph_recaptació, graph_espectadors, graph_comissions, llista_anys)
+            nous_graphs = executar_script(entrada_espectacle, elapsed_time, graph_recaptació, graph_espectadors_pagament, graph_espectadors_convidats, graph_comissions, llista_anys)
 
 
             # 2. Make sure it actually returned something
