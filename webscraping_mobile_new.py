@@ -78,7 +78,7 @@ def obtenir_anys_seleccionats(y26, y25, y24, y23, y22):
     return anys
 
 
-def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show_espectadors_pagament, show_comissions, anys_seleccionats):
+def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show_espectadors_pagament, show_comissions, show_espectadors_convidats, anys_seleccionats):
 
 
     taquilla_url = "https://app.wip29.com/taquilla" #get to different url inside the web
@@ -272,6 +272,7 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
     # This ensures that if a show didn't play in February, February just stays at 0 instead of breaking the graph.
     recaptacions_per_any = {any_str: [0] * divisio_any for any_str in anys_seleccionats}
     espectadors_pagament_per_any = {any_str: [0] * divisio_any for any_str in anys_seleccionats}
+    espectadors_convidats_per_any = {any_str: [0] * divisio_any for any_str in anys_seleccionats}
     comissions_per_any = {any_str: [0] * divisio_any for any_str in anys_seleccionats}
 
     dades_trobades = False # To check if the show actually exists in these years
@@ -295,8 +296,8 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
 
                 funcions = espectacle['shows']
                 espectadors_pagament = int(espectacle['tickets'])
-                invitacions = int(espectacle['invitation'])
-                total_entrades = espectadors_pagament + invitacions
+                espectadors_convidats = int(espectacle['invitation'])
+                total_entrades = espectadors_pagament + espectadors_convidats
             
                 recaptacio = float(espectacle['amount'])
                 recaptacio_america = f"{recaptacio:,.2f}"
@@ -327,6 +328,7 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
 
                 recaptacions_per_any[any_str][index] += recaptacio
                 espectadors_pagament_per_any[any_str][index] += espectadors_pagament
+                espectadors_convidats_per_any[any_str][index] += espectadors_convidats
                 comissions_per_any[any_str][index] += comissions
 
                 break
@@ -366,6 +368,14 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
                 "color": ["skyblue", "lightsalmon", "lightgreen", "plum", "khaki"],
                 "symbol": "€"
             })
+
+        if show_espectadors_convidats:
+                    graphs_to_draw.append({
+                        "titol": "Espectadors amb invitació", 
+                        "dades_per_any": comissions_per_any,
+                        "color": ["skyblue", "lightsalmon", "lightgreen", "plum", "khaki"],
+                        "symbol": ""
+                    })
 
         for config in graphs_to_draw:
             # Make the figure slightly larger so the labels fit nicely
