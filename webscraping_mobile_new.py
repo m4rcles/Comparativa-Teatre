@@ -441,7 +441,8 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
             )
 
             fig.update_traces(
-                hovertemplate="<b>%{x}</b><br>Valor: %{y:,.2f}" + config["symbol"] + "<extra></extra>",
+                #hovertemplate="<b>%{data.name}</b><br>Valor: %{y:,.2f}" + config["symbol"] + "<extra></extra>",
+                hovertemplate="%{data.name} Valor: %{y:,.2f}" + config["symbol"] + "<extra></extra>",
                 textposition="outside"
             )
 
@@ -545,7 +546,7 @@ else:
 
     
     # 3. Time Period Selection
-    opcions_temps = ["Avui", "Setmanes", "Mesos"]
+    opcions_temps = ["Mesos", "Setmanes", "Avui"]
     elapsed_time = st.selectbox("Període de temps", options=opcions_temps)
 
     col1, col2, col3 = st.columns([1, 1, 1])
