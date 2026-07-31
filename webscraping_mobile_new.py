@@ -9,6 +9,10 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from matplotlib.figure import Figure
 
+import pandas as pd
+import plotly.express as px
+
+
 # Create a global session, but save it in Streamlit's memory so it doesn't get erased!
 if "api_session" not in st.session_state:
     st.session_state.api_session = requests.Session()
@@ -313,7 +317,7 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
                 
                 print(f"{analysed_url}")
                 print(f"Any: {data_inici.year} / Mes: {data_inici.month:02d} / Dia: {data_inici.day:02d}")
-                print(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Total entrades: {total_entrades} | comissions: {comissions} | Total: {total_formatejat}€")
+                print(f"Espectacle: {string_show_name} | Funcions: {funcions} | Espectadors de pagament: {espectadors_pagament} | Espectadors convidats: {espectadors_convidats} | comissions: {comissions} | Total: {total_formatejat}€")
 
                 if option == 1:
                     st.write(f"Any: {today.year} / Mes: {today.month:02d} / Dia: {today.day:02d}")
@@ -345,11 +349,19 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
         #build recipe book based on what user checked
         graphs_to_draw = []
 
+        colors_per_any = {
+            "2026": "skyblue",
+            "2025": "lightsalmon",
+            "2024": "lightgreen",
+            "2023": "plum",
+            "2022": "khaki"
+        }
+
         if show_recaptacio:
             graphs_to_draw.append({
                 "titol": "Recaptació", 
                 "dades_per_any": recaptacions_per_any,
-                "color": ["skyblue", "lightsalmon", "lightgreen", "plum", "khaki"],
+                "color": colors_per_any,
                 "symbol": "€"
             })
 
@@ -357,7 +369,7 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
             graphs_to_draw.append({
                 "titol": "Espectadors de pagament", 
                 "dades_per_any": espectadors_pagament_per_any,
-                "color": ["skyblue", "lightsalmon", "lightgreen", "plum", "khaki"],
+                "color": colors_per_any,
                 "symbol": "👤€"
             })
 
@@ -365,24 +377,24 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
             graphs_to_draw.append({
                 "titol": "Comissions", 
                 "dades_per_any": comissions_per_any,
-                "color": ["skyblue", "lightsalmon", "lightgreen", "plum", "khaki"],
+                "color": colors_per_any,
                 "symbol": "€"
             })
 
         if show_espectadors_convidats:
-                    graphs_to_draw.append({
-                        "titol": "Espectadors amb invitació", 
-                        "dades_per_any": comissions_per_any,
-                        "color": ["skyblue", "lightsalmon", "lightgreen", "plum", "khaki"],
-                        "symbol": ""
-                    })
+            graphs_to_draw.append({
+                "titol": "Espectadors amb invitació", 
+                "dades_per_any": espectadors_convidats_per_any,
+                "color": colors_per_any,
+                "symbol": "👤"
+            })
 
         for config in graphs_to_draw:
             # Make the figure slightly larger so the labels fit nicely
-            fig = Figure(figsize=(10, 6)) 
-            ax = fig.add_subplot(111)
+            #fig = Figure(figsize=(10, 6)) 
+            #ax = fig.add_subplot(111)
 
-            anys = list(config["dades_per_any"].keys())
+            anys = sorted(list(config["dades_per_any"].keys()))
             num_anys = len(anys)
 
             # Figure out how many periods (bars) are in a single year 
@@ -406,60 +418,41 @@ def executar_script(string_show_name, string_elapsed_time, show_recaptacio, show
             else:
                 etiquetes_x = [f"Període {i+1}" for i in range(num_punts)]
 
-            posicions_x_base = list(range(num_punts))
 
-            # Determine how thick the bars should be so they all fit
-            amplada_total = 0.8
-            amplada_barra = amplada_total / num_anys
+            dades_llista = []
+            for any_label in anys:
+                for i, valor in enumerate(config["dades_per_any"][any_label]):
+                    dades_llista.append({
+                        "Any": str(any_label),
+                        "Període": etiquetes_x[i],
+                        "Valor": valor
+                    })
 
-            #loop through each year and draw its bars
-            for index, any_label in enumerate(anys):
-                dades_any = config["dades_per_any"][any_label]
-                color_any = config["color"][index % len(config["color"])]
+            df = pd.DataFrame(dades_llista)
 
-                # MAGIC MATH: Shift the X position left or right depending on the year
-                offset = (index - num_anys / 2) * amplada_barra + amplada_barra / 2
-                posicions_x_desplaçades = [x + offset for x in posicions_x_base]
+            fig = px.bar(
+                df,
+                x="Període",
+                y="Valor",
+                color="Any",
+                barmode="group",
+                title=f"Gràfic {config['titol']} {string_show_name} Comparativa",
+                text_auto='.2s'
+            )
 
-                barres = ax.bar(posicions_x_desplaçades, dades_any, width=amplada_barra, label=str(any_label), color=color_any)
+            fig.update_traces(
+                hovertemplate="<b>%{x}</b><br>Valor: %{y:,.2f}" + config["symbol"] + "<extra></extra>",
+                textposition="outside"
+            )
 
-                # --- NEW: Write the values on top of each bar ---
-                for barra in barres:
-                    alçada = barra.get_height()
-                    
-                    if alçada > 0: # Only write the text if the bar actually has a value
-                        # Format the number to Catalan/European standard
-                        text_america = f"{alçada:,.2f}"
-                        text_catala = text_america.replace(',', 'X').replace('.', ',').replace('X', '.')
+            fig.update_layout(
+                xaxis_title="Períodes",
+                yaxis_title=f"{config['titol']} {config['symbol']}",
+                legend_title="Anys",
+                hovermode="x unified"
+            )
 
-                        int_text_america = f"{alçada:,.0f}"
-                        int_text_catala = int_text_america.replace(',', '.')
-                        
-                        # Place the text
-                        ax.text(
-                            barra.get_x() + barra.get_width() / 2, # X coordinate: Center of the bar
-                            alçada,                                # Y coordinate: Top of the bar
-                            f"{int_text_catala}{config['symbol']}",                     # The text to display
-                            ha='center',                           # Align center horizontally
-                            va='bottom',                           # Align just above the bar
-                            fontsize=8,                            # Make text slightly smaller
-                            rotation=90                            # Rotate it so nearby bars don't overlap
-                        )
-
-            ax.set_title(f"Gràfic {config['titol']} {string_show_name} Comparativa")
-            ax.set_xlabel("Períodes")
-            ax.set_ylabel(f"{config['titol']} {config['symbol']}")
-
-            ax.set_xticks(posicions_x_base)
-            ax.set_xticklabels(etiquetes_x, rotation = 45, ha='right')
-
-            ax.legend()
-
-            # Make the Y-axis slightly taller than the highest bar so text doesn't get cut off
-            #if config["dades"]:
-                #ax.set_ylim(bottom=0, top=max(config["dades"]) * 1.15) 
-
-            fig.autofmt_xdate(rotation=45, ha='right')
+            
 
             figures_generades.append(fig)
 
@@ -607,7 +600,7 @@ else:
     # 3. Draw EVERY graph currently stored in memory
     # We use enumerate() to get both the index number (i) and the graph itself
     for i, grafic_guardat in enumerate(st.session_state.graphs):
-        st.pyplot(grafic_guardat)
+        st.plotly_chart(grafic_guardat, use_container_width=True)
 
         # Create columns to put the delete button nicely on the right side
         col1, col2, col3 = st.columns([1, 1, 1])
